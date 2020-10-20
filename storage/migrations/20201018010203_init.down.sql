@@ -1,0 +1,4 @@
+-- migrate create -dir database/migrations -ext sql MIGRATION_NAME
+-- Details:
+-- https://github.com/golang-migrate/migrate
+-- https://github.com/golang-migrate/migrate/tree/master/cli

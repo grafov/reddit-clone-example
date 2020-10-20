@@ -1,0 +1,38 @@
+version: "3.5"
+
+services:
+  db:
+    image: postgres:12
+    ports:
+      - 5433:5432
+    volumes:
+      - /var/lib/local/redditclone/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=rc
+      - POSTGRES_PASSWORD=Ooneido
+      - POSTGRES_DB=rc
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "4"
+
+  app:
+    image: redditclone/app
+    ports:
+      - 8000:8000
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=rc
+      - DB_NAMESPACE=rc
+      - DB_USERNAME=rc
+      - DB_PASSWORD=Ooneido
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "4"
+    depends_on:
+      - "db"
+    command: ["./wait-for-it.sh", "db:5432"]
