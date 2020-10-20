@@ -2,19 +2,18 @@ package handle
 
 import (
 	"github.com/gin-gonic/gin"
-	//	"github.com/gin-contrib/static"
 )
 
 func Route() *gin.Engine {
-	var r = gin.New()
+	var r = gin.Default()
 
-	r.RedirectTrailingSlash = false
+	r.RedirectTrailingSlash = true
 	r.GET("/", handleRoot)
 	r.StaticFile("index.html", "/web/index.html")
 	r.StaticFile("favicon.ico", "/web/favicon.ico")
 	r.Static("static", "/web")
 
-	var api = r.Group("/api")
+	var api = r.Group("api")
 	api.POST("register", handleRegister)
 	api.POST("login", handleLogin)
 	api.GET("posts", handlePostList)
