@@ -3,19 +3,11 @@ CREATE TABLE account
        id uuid NOT NULL,
        login text NOT NULL,
        pass text NOT NULL,
-       name text,
        created_at timestamptz default now(),
        CONSTRAINT account_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE session
-(
-       id serial NOT NULL,
-       uid uuid NOT NULL,
-       session text NOT NULL,
-       created_at timestamptz default now(),
-       CONSTRAINT session_pk PRIMARY KEY (id)
-);
+CREATE UNIQUE INDEX account_login_index ON account(login);
 
 CREATE TABLE story
 (
@@ -28,6 +20,8 @@ CREATE TABLE story
        CONSTRAINT story_pk PRIMARY KEY (id)
 );
 
+CREATE INDEX story_created_index ON story(created_at);
+
 CREATE TABLE comment
 (
        id uuid NOT NULL,
@@ -36,3 +30,5 @@ CREATE TABLE comment
        created_at timestamptz default now(),
        CONSTRAINT comment_pk PRIMARY KEY (id)
 );
+
+CREATE INDEX comment_created_index ON comment(created_at);
