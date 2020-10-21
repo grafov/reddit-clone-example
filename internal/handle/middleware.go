@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"redditclone/internal/user"
+	"reddit-clone-example/internal/user"
 
 	"github.com/gin-gonic/gin"
 )
+
+const session = "session" // key for user info in gin context
 
 // headers middleware checks for valid content type for API requests
 func headers(c *gin.Context) {
@@ -21,12 +23,12 @@ func headers(c *gin.Context) {
 
 // auth middleware checks for authorization header
 func auth(c *gin.Context) {
+	// Parse the token from the header. Take into account that the token prepended by Bearer
+	// keyword.
 	var (
 		token string
 		err   error
 	)
-	// Parse the token from the header. Take into account that the token prepended by Bearer
-	// keyword.
 	{
 		h := c.GetHeader("Authorization")
 		if len(h) < 8 {
@@ -41,12 +43,25 @@ func auth(c *gin.Context) {
 		token = s[1]
 	}
 
-	var a *user.Authbox
-	if a, err = user.AuthCheck(context.Background(), token); err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, msg(err.Error()))
-		return
+	// Pass auth data into gin context.
+	var u *user.User
+	{
+		if u, err = user.AuthCheck(context.Background(), token); err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, msg(err.Error()))
+			return
+		}
+		c.Set(session, u)
 	}
-	c.Set("auth", a)
 
 	c.Next()
+}
+
+// getUser is not a middleware but helper for extracting user info
+// from gin context.
+func getUser(c *gin.Context) user.User {
+	var u user.User
+	if v, ok := c.Get(session); ok {
+		u = v.(user.User)
+	}
+	return u
 }

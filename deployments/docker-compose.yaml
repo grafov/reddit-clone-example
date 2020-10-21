@@ -6,7 +6,7 @@ services:
     ports:
       - 5433:5432
     volumes:
-      - /var/lib/local/redditclone/db:/var/lib/postgresql/data
+      - /var/lib/local/reddit-clone-example/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=rc
       - POSTGRES_PASSWORD=Ooneido
@@ -18,7 +18,7 @@ services:
         max-file: "4"
 
   app:
-    image: redditclone/app
+    image: reddit-clone-example/app
     ports:
       - 8000:8000
     environment:

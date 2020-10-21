@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"time"
 
-	"redditclone/internal/config"
-	"redditclone/storage"
+	"reddit-clone-example/internal/config"
+	"reddit-clone-example/storage"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"

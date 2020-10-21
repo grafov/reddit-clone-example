@@ -3,7 +3,10 @@ package user
 import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"github.com/grafov/kiwi"
 )
+
+var log = kiwi.Fork().With("pkg", "user")
 
 type (
 	Authbox struct {

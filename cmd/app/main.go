@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"redditclone/internal/config"
-	"redditclone/internal/handle"
-	"redditclone/storage"
+	"reddit-clone-example/internal/config"
+	"reddit-clone-example/internal/handle"
+	"reddit-clone-example/storage"
 
 	"github.com/grafov/kiwi"
 	"github.com/grafov/kiwi/where"

@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"redditclone/internal/config"
+	"reddit-clone-example/internal/config"
 
 	"github.com/grafov/kiwi"
 )

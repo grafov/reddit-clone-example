@@ -1,4 +1,4 @@
-module redditclone
+module reddit-clone-example
 
 go 1.15
 

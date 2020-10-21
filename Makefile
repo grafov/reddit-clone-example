@@ -10,6 +10,6 @@ build:
 	GO111MODULE=on CGO_ENABLED=0 go build -ldflags $(BUILD_FLAGS) -o rcapp cmd/app/*.go
 
 docker:
-	@docker build -f build/Dockerfile -t redditclone/app .
+	@docker build -f build/Dockerfile -t reddit-clone-example/app .
 
 .PHONY: build docker

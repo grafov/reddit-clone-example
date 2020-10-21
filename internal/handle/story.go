@@ -5,7 +5,7 @@ import (
 	"context"
 	"net/http"
 
-	"redditclone/internal/story"
+	"reddit-clone-example/internal/story"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -47,7 +47,7 @@ func handleDeleteStory(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, msg("invalid story id"))
 		return
 	}
-	story.Delete(context.Background(), id)
+	story.Delete(context.Background(), getUser(c), id)
 }
 
 const xxxList = `

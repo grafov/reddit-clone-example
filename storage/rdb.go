@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"redditclone/internal/config"
+	"reddit-clone-example/internal/config"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -19,7 +19,7 @@ var (
 	// methods everywhere. Note that "repository" pattern is
 	// redundant here because we don't change the initialized once
 	// instance.
-	DB *sqlx.DB
+	DB  *sqlx.DB
 	log = kiwi.Fork().With("service", "database")
 )
 

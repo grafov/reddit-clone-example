@@ -1,5 +1,9 @@
 package story
 
+import "github.com/grafov/kiwi"
+
+var log = kiwi.Fork().With("pkg", "story")
+
 type Story struct {
 	Category string `json:"category" db:"category"`
 	Title    string `json:"title" db:"title"`

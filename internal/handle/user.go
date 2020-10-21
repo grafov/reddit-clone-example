@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"redditclone/internal/user"
+	"reddit-clone-example/internal/user"
 
 	"github.com/gin-gonic/gin"
 )

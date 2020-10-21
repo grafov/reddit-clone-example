@@ -5,7 +5,7 @@ FROM golang:1.15-alpine as builder
 RUN apk add git make
 RUN apk add --update --no-cache ca-certificates
 
-WORKDIR /go/src/redditclone
+WORKDIR /go/src/reddit-clone-example
 
 ### Cache modules
 COPY go.mod go.sum ./
@@ -21,8 +21,8 @@ FROM scratch
 VOLUME /tmp
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /go/src/redditclone/web/* /web/
-COPY --from=builder /go/src/redditclone/storage/migrations/* /storage/migrations/
-COPY --from=builder /go/src/redditclone/rcapp /rcapp
+COPY --from=builder /go/src/reddit-clone-example/web/* /web/
+COPY --from=builder /go/src/reddit-clone-example/storage/migrations/* /storage/migrations/
+COPY --from=builder /go/src/reddit-clone-example/rcapp /rcapp
 
 ENTRYPOINT ["/rcapp"]

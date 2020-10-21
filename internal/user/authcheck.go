@@ -4,14 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"redditclone/internal/config"
+	"time"
+
+	"reddit-clone-example/internal/config"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/grafov/kiwi"
 )
 
-// AuthCheck checks for JWT token validity.
-func AuthCheck(ctx context.Context, authkey string) (*Authbox, error) {
+// AuthCheck checks for JWT token validity. It returns user.User
+// object with name and id for further usage.
+func AuthCheck(ctx context.Context, authkey string) (*User, error) {
 	secret := func(token *jwt.Token) (interface{}, error) {
 		method, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok || method.Alg() != "HS256" {
@@ -40,15 +43,18 @@ func AuthCheck(ctx context.Context, authkey string) (*Authbox, error) {
 		}
 	}
 
+	// Check for auth data in the payload validity. Check that
+	// token is not expired.
 	var auth *Authbox
 	{
 		var ok bool
 		if auth, ok = token.Claims.(*Authbox); !ok {
 			return nil, errors.New("no payload in the token")
 		}
-		kiwi.Log("payload", auth)
-
+		if auth.ExpiresAt <= time.Now().Unix() {
+			return nil, errors.New("token has expired")
+		}
 	}
 
-	return auth, nil
+	return &auth.User, nil
 }
