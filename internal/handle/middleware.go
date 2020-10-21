@@ -10,6 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func headers(c *gin.Context) {
+	if c.GetHeader("Content-Type") != "application/json" {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest, errors.New("request payload not recognized"),
+		)
+		return
+	}
+	c.Next()
+}
+
 func auth(c *gin.Context) {
 	var h = c.GetHeader("Authorization")
 	const hmacSampleSecret = "replace-this-sample"

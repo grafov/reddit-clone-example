@@ -14,8 +14,8 @@ func Route() *gin.Engine {
 	r.Static("static", "/web")
 
 	var api = r.Group("api")
-	api.POST("register", handleRegister)
-	api.POST("login", handleLogin)
+	api.POST("register", headers, handleRegister)
+	api.POST("login", headers, handleLogin)
 	api.GET("posts", handlePostList)
 	api.GET("post/:id", handlePost)
 
