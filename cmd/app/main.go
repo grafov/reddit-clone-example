@@ -13,6 +13,7 @@ import (
 	"redditclone/storage"
 
 	"github.com/grafov/kiwi"
+	"github.com/grafov/kiwi/where"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	kiwi.SinkTo(os.Stdout, kiwi.AsLogfmt()).Start()
 	// Uncomment the line to add more context info to the log
 	// output. Use it for non production environments only.
-	// kiwi.With(where.What(where.Function | where.FilePos))
+	kiwi.With(where.What(where.Function | where.FilePos))
 
 	kiwi.Log(
 		"build_at", config.BuildAt,

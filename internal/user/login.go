@@ -20,7 +20,7 @@ func Login(ctx context.Context, name, pass string) (token, message string) {
 		err error
 	)
 
-	// load user here
+	const q = `SELECT id, login FROM account WHERE login = $1 AND pass = $2`
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": name,
@@ -63,7 +63,7 @@ func auth(c *gin.Context) {
 func validateToken(encodedToken string) (*jwt.Token, error) {
 	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
-			return nil, fmt.Errorf("Invalid token", token.Header["alg"])
+			return nil, fmt.Errorf("invalid token", token.Header["alg"])
 
 		}
 		return []byte("sessid"), nil

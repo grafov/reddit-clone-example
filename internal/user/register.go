@@ -2,8 +2,14 @@ package user
 
 import (
 	"context"
+	"database/sql"
 
+	"redditclone/internal/config"
 	"redditclone/storage"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(ctx context.Context, name, pass string) (token, message string) {
@@ -17,13 +23,56 @@ func Register(ctx context.Context, name, pass string) (token, message string) {
 	}
 	defer tx.Rollback()
 
-	// проверить наличие юзера
-	// вернуть токен
+	// Check for the same login existence.
+	{
+		const q = `SELECT id, login FROM account WHERE login = $1`
+		var id uuid.UUID
+		if err = tx.QueryRowxContext(ctx, q, name).Scan(&id); err != nil && err != sql.ErrNoRows {
+			l.Log("err", err, "desc", "db select failed")
+			return "", "internal error"
+		}
+		if id != uuid.Nil {
+			return "", "user exists"
+		}
+	}
+
+	// Create a new user.
+	var id = uuid.New()
+	{
+		const q = `INSERT INTO account (id, login, pass) VALUES ($1, $2, $3)`
+		// cost choice refs to
+		// https://security.stackexchange.com/questions/17207/recommended-of-rounds-for-bcrypt/83382#83382
+		var h []byte
+		if h, err = bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost); err != nil {
+			l.Log("err", err, "desc", "password hash generation failed")
+			return "", "internal error"
+		}
+		if _, err = tx.ExecContext(ctx, q, id, name, h); err != nil {
+			l.Log("err", err, "desc", "new user creation failed")
+			return "", "internal error"
+		}
+	}
+
+	// Generate JWT token.
+	{
+		if token, err = createToken(id, name); err != nil {
+			log.Log("err", err, "desc", "can't create token")
+			return "", "can't register"
+		}
+	}
 
 	if err = tx.Commit(); err != nil {
 		log.Log("err", err, "desc", "can't commit")
 		return "", "can't register"
 	}
 
-	return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiU2FtcGxlIiwiaWQiOiI1ZjhjOTUxMzYyNjg4NjAwMDgyZDQyZGYifSwiaWF0IjoxNjAzMTI2MDM1LCJleHAiOjE2MDM3MzA4MzV9.diily4DgCZI-eNiqycVJHnfkPB2HuMZb6WRuBvOyLk4", ""
+	return token, ""
+}
+
+func createToken(id uuid.UUID, name string) (string, error) {
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": name,
+		"id":       id.String(),
+	})
+	return t.SignedString([]byte(config.App.TokenSecret))
 }

@@ -14,4 +14,5 @@ require (
 	github.com/lib/pq v1.8.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
+	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 )
