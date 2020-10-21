@@ -10,9 +10,9 @@ import (
 // These variables exports build related metadata. They set during
 // compile time.
 var (
-	GitHash        string
-	Version        string
-	BuildAt        string
+	GitHash string
+	Version string
+	BuildAt string
 )
 
 // App describes common application settings.
@@ -27,6 +27,7 @@ type app struct {
 	Port           int      `default:"8000"`
 	AllowedDomains []string `split_words:"true" default:"*"`
 	TokenSecret    string   `default:"you-must-replace-this-string-in-production"`
+	TokenDuration  int   `default:"10080"` // duration in minutes
 
 	RequestTimeout  time.Duration `default:"1s"` // request serving timeout
 	ShutdownTimeout time.Duration `default:"5s"` // timeout wait shutdown
