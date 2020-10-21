@@ -12,15 +12,18 @@ CREATE UNIQUE INDEX account_login_index ON account(login);
 CREATE TABLE story
 (
        id uuid NOT NULL,
+       title text NOT NULL,
+       kind text NOT NULL,
        body text NOT NULL,
+       category text NOT NULL,
        score integer NOT NULL DEFAULT 0,
        views integer NOT NULL DEFAULT 0,
-       kind text,
        created_at timestamptz default now(),
        CONSTRAINT story_pk PRIMARY KEY (id)
 );
 
 CREATE INDEX story_created_index ON story(created_at);
+CREATE INDEX story_category_index ON story(category);
 
 CREATE TABLE comment
 (
