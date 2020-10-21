@@ -45,3 +45,7 @@ func handleRegister(c *gin.Context) {
 
 	c.JSON(http.StatusUnauthorized, gin.H{"message": message})
 }
+
+func handleProfile(c *gin.Context) {
+	c.String(http.StatusOK, "[]")
+}

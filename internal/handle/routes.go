@@ -16,12 +16,19 @@ func Route() *gin.Engine {
 	var api = r.Group("api")
 	api.POST("register", headers, handleRegister)
 	api.POST("login", headers, handleLogin)
+	api.GET("user/:name", handleProfile)
 	api.GET("posts", handlePostList)
-	api.GET("post/:id", handlePost)
+	api.GET("post/:id", auth, handlePost)
 
 	return r
 }
 
 func handleRoot(c *gin.Context) {
 	c.File("/web/index.html")
+}
+
+func msg(text string) map[string]string {
+	m := make(map[string]string)
+	m["message"] = text
+	return m
 }
