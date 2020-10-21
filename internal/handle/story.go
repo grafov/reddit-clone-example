@@ -2,9 +2,14 @@ package handle
 
 import (
 	"bytes"
+	"context"
 	"net/http"
 
+	"redditclone/internal/story"
+
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/grafov/kiwi"
 )
 
 func handleStoryList(c *gin.Context) {
@@ -13,10 +18,36 @@ func handleStoryList(c *gin.Context) {
 }
 
 func handleCreateStory(c *gin.Context) {
-	c.JSON(200, gin.H{"token": "zzz"})
+	var s story.Story
+	if err := c.ShouldBindJSON(&s); err != nil {
+		c.JSON(http.StatusBadRequest, msg("invalid JSON request"))
+		return
+	}
+	kiwi.Log("story", s)
 }
 
-func handleStory(c *gin.Context) {
+func handleGetStory(c *gin.Context) {
+	var (
+		id  uuid.UUID
+		err error
+	)
+	if id, err = uuid.Parse(c.Param("id")); err != nil {
+		c.JSON(http.StatusBadRequest, msg("invalid story id"))
+		return
+	}
+	story.Get(context.Background(), id)
+}
+
+func handleDeleteStory(c *gin.Context) {
+	var (
+		id  uuid.UUID
+		err error
+	)
+	if id, err = uuid.Parse(c.Param("id")); err != nil {
+		c.JSON(http.StatusBadRequest, msg("invalid story id"))
+		return
+	}
+	story.Delete(context.Background(), id)
 }
 
 const xxxList = `

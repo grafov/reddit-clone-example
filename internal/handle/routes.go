@@ -18,8 +18,9 @@ func Route() *gin.Engine {
 	api.POST("login", headers, handleLogin)
 	api.GET("user/:name", handleProfile)
 	api.GET("posts", handleStoryList)
-	api.GET("post/:id", handleStory)
+	api.GET("post/:id", handleGetStory)
 	api.POST("posts", auth, handleCreateStory)
+	api.DELETE("post/:id", auth, handleDeleteStory)
 
 	return r
 }
