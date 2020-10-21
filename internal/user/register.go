@@ -71,9 +71,11 @@ func Register(ctx context.Context, name, pass string) (token, message string) {
 func createToken(id uuid.UUID, name string) (string, error) {
 	n := time.Now().Unix()
 	a := Authbox{
-		User:     User{id, name},
-		IssuedAt: n,
-		Expired:  n + int64(config.App.TokenDuration*60),
+		jwt.StandardClaims{
+			IssuedAt:  n,
+			ExpiresAt: n + int64(config.App.TokenDuration*60),
+		},
+		User{id, name},
 	}
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, a.claims())
 	return t.SignedString([]byte(config.App.TokenSecret))

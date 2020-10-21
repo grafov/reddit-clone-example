@@ -3,6 +3,7 @@ package handle
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"redditclone/internal/user"
 
@@ -20,14 +21,32 @@ func headers(c *gin.Context) {
 
 // auth middleware checks for authorization header
 func auth(c *gin.Context) {
-	var h = c.GetHeader("Authorization")
-	if h == "" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, msg("authentication header missed or not valid"))
+	var (
+		token string
+		err   error
+	)
+	// Parse the token from the header. Take into account that the token prepended by Bearer
+	// keyword.
+	{
+		h := c.GetHeader("Authorization")
+		if len(h) < 8 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, msg("authorization header missed or not valid"))
+			return
+		}
+		s := strings.SplitN(h, "Bearer ", 2)
+		if len(s) < 2 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, msg("badly formatted authorization header (Bearer missed)"))
+			return
+		}
+		token = s[1]
+	}
+
+	var a *user.Authbox
+	if a, err = user.AuthCheck(context.Background(), token); err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, msg(err.Error()))
 		return
 	}
-	if !user.AuthCheck(context.Background(), h) {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, msg("wrong auth token"))
-		return
-	}
+	c.Set("auth", a)
+
 	c.Next()
 }

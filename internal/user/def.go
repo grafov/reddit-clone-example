@@ -7,9 +7,8 @@ import (
 
 type (
 	Authbox struct {
-		User     User  `json:"user"`
-		IssuedAt int64 `json:"iat"`
-		Expired  int64 `json:"exp"`
+		jwt.StandardClaims
+		User User `json:"user"`
 	}
 	User struct {
 		ID    uuid.UUID `json:"id"`
@@ -17,7 +16,7 @@ type (
 	}
 )
 
+// Claims makes the structure for JWT signing.
 func (a *Authbox) claims() *jwt.MapClaims {
-
-	return &jwt.MapClaims{"user": a.User, "iat": a.IssuedAt, "exp": a.Expired}
+	return &jwt.MapClaims{"user": a.User, "iat": a.IssuedAt, "exp": a.ExpiresAt}
 }

@@ -3,11 +3,9 @@ package user
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"redditclone/storage"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -56,15 +54,4 @@ func Login(ctx context.Context, name, pass string) (token, message string) {
 	}
 
 	return token, ""
-}
-
-func validateToken(encodedToken string) (*jwt.Token, error) {
-	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
-		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
-			return nil, fmt.Errorf("invalid token", token.Header["alg"])
-
-		}
-		return []byte("sessid"), nil
-	})
-
 }

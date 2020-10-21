@@ -7,13 +7,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func handlePostList(c *gin.Context) {
+func handleStoryList(c *gin.Context) {
 	r := bytes.NewReader([]byte(xxxList))
 	c.DataFromReader(http.StatusOK, int64(len(xxxList)), "application/json", r, nil)
 }
 
-func handlePost(c *gin.Context) {
+func handleCreateStory(c *gin.Context) {
 	c.JSON(200, gin.H{"token": "zzz"})
+}
+
+func handleStory(c *gin.Context) {
 }
 
 const xxxList = `
