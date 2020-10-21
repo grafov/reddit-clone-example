@@ -3,13 +3,11 @@ package user
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
-	"net/http"
+
 	"redditclone/storage"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -58,30 +56,6 @@ func Login(ctx context.Context, name, pass string) (token, message string) {
 	}
 
 	return token, ""
-}
-
-func auth(c *gin.Context) {
-	var h = c.GetHeader("Authorization")
-	const hmacSampleSecret = "replace-this-sample"
-	const BEARER_SCHEMA = "Bearer"
-
-	if len(h) < 8 {
-		c.AbortWithStatusJSON(
-			http.StatusUnauthorized, errors.New("access denied: wrong auth token"),
-		)
-		return
-	}
-
-	token, err := validateToken(h[len(BEARER_SCHEMA):])
-	if token.Valid {
-		claims := token.Claims.(jwt.MapClaims)
-		fmt.Println(claims)
-	} else {
-		fmt.Println(err)
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
-
-	c.Next()
 }
 
 func validateToken(encodedToken string) (*jwt.Token, error) {

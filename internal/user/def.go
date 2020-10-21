@@ -1,14 +1,23 @@
 package user
 
-import "github.com/google/uuid"
+import (
+	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
+)
 
-type Credentials struct {
-	User User  `json:"user"`
-	Iat  int64 `json:"iat"`
-	Exp  int64 `json:"exp"`
-}
+type (
+	Authbox struct {
+		User     User  `json:"user"`
+		IssuedAt int64 `json:"iat"`
+		Expired  int64 `json:"exp"`
+	}
+	User struct {
+		ID    uuid.UUID `json:"id"`
+		Login string    `json:"username"`
+	}
+)
 
-type User struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+func (a *Authbox) claims() *jwt.MapClaims {
+
+	return &jwt.MapClaims{"user": a.User, "iat": a.IssuedAt, "exp": a.Expired}
 }

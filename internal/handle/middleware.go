@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// headers middleware checks for valid content type for API requests
 func headers(c *gin.Context) {
 	if c.GetHeader("Content-Type") != "application/json" {
 		c.AbortWithStatusJSON(
@@ -20,10 +21,9 @@ func headers(c *gin.Context) {
 	c.Next()
 }
 
+// auth middleware checks for authorization header
 func auth(c *gin.Context) {
 	var h = c.GetHeader("Authorization")
-	const hmacSampleSecret = "replace-this-sample"
-	const BEARER_SCHEMA = "Bearer"
 
 	if len(h) < 8 {
 		c.AbortWithStatusJSON(
@@ -31,9 +31,6 @@ func auth(c *gin.Context) {
 		)
 		return
 	}
-
-	// XXX
-	c.Next()
 
 	if !user.AuthCheck(context.Background(), h) {
 		c.AbortWithStatusJSON(

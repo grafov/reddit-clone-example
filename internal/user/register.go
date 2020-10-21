@@ -55,11 +55,9 @@ func Register(ctx context.Context, name, pass string) (token, message string) {
 	}
 
 	// Generate JWT token.
-	{
-		if token, err = createToken(id, name); err != nil {
-			log.Log("err", err, "desc", "can't create token")
-			return "", "can't register"
-		}
+	if token, err = createToken(id, name); err != nil {
+		log.Log("err", err, "desc", "can't create token")
+		return "", "can't register"
 	}
 
 	if err = tx.Commit(); err != nil {
@@ -70,18 +68,13 @@ func Register(ctx context.Context, name, pass string) (token, message string) {
 	return token, ""
 }
 
-type user struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"username"`
-}
-
 func createToken(id uuid.UUID, name string) (string, error) {
-	iat := time.Now().Unix()
-	exp := iat + int64(config.App.TokenDuration*60)
-	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user": user{id, name},
-		"iat":  iat,
-		"exp":  exp,
-	})
+	n := time.Now().Unix()
+	a := Authbox{
+		User:     User{id, name},
+		IssuedAt: n,
+		Expired:  n + int64(config.App.TokenDuration*60),
+	}
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, a.claims())
 	return t.SignedString([]byte(config.App.TokenSecret))
 }
