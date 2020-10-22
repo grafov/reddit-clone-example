@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Upvote increments score counter for the story.
+// Upvote increments user' score for the story.
 func Upvote(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, error) {
 	var (
 		tx, err = storage.DB.BeginTxx(ctx, nil)
@@ -44,7 +44,12 @@ func Upvote(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, e
 
 }
 
-// Downvote decrements score counter for the story.
+// Neutral resets user' score for the story.
+func Neutral(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, error) {
+	return []Vote{}, nil
+}
+
+// Downvote decrements user' score for the story.
 func Downvote(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, error ){
 	return []Vote{}, nil
 }

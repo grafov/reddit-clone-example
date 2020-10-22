@@ -27,6 +27,8 @@ func Route() *gin.Engine {
 	api.DELETE("post/:story_id/:comment_id", authCheck, handleDeleteComment)
 	api.GET("post/:story_id/upvote", authCheck, handleUpvote)
 	api.GET("post/:story_id/downvote", authCheck, handleDownvote)
+	api.GET("post/:story_id/unvote", authCheck, handleUnvote)
+
 	return r
 }
 
