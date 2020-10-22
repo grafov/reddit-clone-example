@@ -8,10 +8,11 @@ func Route() *gin.Engine {
 	var r = gin.Default()
 
 	r.RedirectTrailingSlash = true
-	r.GET("/", handleRoot)
 	r.StaticFile("index.html", "/web/index.html")
 	r.StaticFile("favicon.ico", "/web/favicon.ico")
 	r.Static("static", "/web")
+	r.GET("/", handleRoot)
+	r.GET("/a/:cat/:story_id", handleRoot)
 
 	var api = r.Group("api")
 	api.POST("register", headers, handleRegister)

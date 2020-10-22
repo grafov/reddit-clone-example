@@ -13,14 +13,14 @@ import (
 )
 
 // Create creates a comment for a story. Author should be logged in.
-func Create(ctx context.Context, author user.User, comment Comment) (Comment, error) {
+func Create(ctx context.Context, author user.User, comment Comment) error {
 	var (
 		tx, err = storage.DB.BeginTxx(ctx, nil)
 		l       = log.Fork().With("fn", "create", "author", author.ID, "story", comment.StoryID)
 	)
 	if err != nil {
 		l.Log("err", err, "desc", "can't begin transaction")
-		return Comment{}, errInternal
+		return errInternal
 	}
 	defer tx.Rollback()
 
@@ -30,10 +30,10 @@ func Create(ctx context.Context, author user.User, comment Comment) (Comment, er
 		const q = `SELECT id FROM story WHERE id = $1`
 		if err = tx.QueryRowxContext(ctx, q, comment.StoryID).Scan(&id); err != nil && err != sql.ErrNoRows {
 			l.Log("err", err, "sql", q, "desc", "db select failed")
-			return Comment{}, errInternal
+			return errInternal
 		}
 		if err == sql.ErrNoRows {
-			return Comment{}, errors.New("story not found")
+			return errors.New("story not found")
 		}
 	}
 
@@ -47,11 +47,11 @@ func Create(ctx context.Context, author user.User, comment Comment) (Comment, er
 	// Save into a storage.
 	{
 		const q = `INSERT INTO comment (id, story_id, body, created_by, created_at) VALUES ($1, $2, $3, $4, $5)`
-		if _, err = tx.ExecContext(ctx, q, comment.ID, comment.StoryID, comment.Body, comment.Author.ID, comment.CreatedAt); err != nil {
+		if _, err = tx.ExecContext(ctx, q, comment.ID, comment.StoryID, comment.Comment, comment.Author.ID, comment.CreatedAt); err != nil {
 			l.Log("err", err, "sql", q, "desc", "new comment creation failed")
-			return Comment{}, errInternal
+			return errInternal
 		}
 	}
 
-	return comment, tx.Commit()
+	return tx.Commit()
 }

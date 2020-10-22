@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"reddit-clone-example/internal/comment"
 	"reddit-clone-example/internal/user"
 	"reddit-clone-example/storage"
 
@@ -33,9 +34,8 @@ FROM story s INNER JOIN account a ON s.created_by = a.id
 ORDER BY s.created_at DESC
 LIMIT 1000`
 		var rows *sqlx.Rows
-		l.With("sql", q)
 		if rows, err = tx.QueryxContext(ctx, q); err != nil && err != sql.ErrNoRows {
-			l.Log("err", err, "desc", "db select failed")
+			l.Log("err", err, "sql", q, "desc", "db select failed")
 			return []Story{}, errInternal
 		}
 		if err == sql.ErrNoRows {
@@ -45,13 +45,22 @@ LIMIT 1000`
 		for rows.Next() {
 			var story Story
 			if err = rows.StructScan(&story); err != nil {
-				l.Log("err", err, "desc", "db select failed")
+				l.Log("err", err, "sql", q, "desc", "rows scan failed")
 				return []Story{}, errInternal
 			}
 
 			story.Author = user.User{ID: story.CreatedBy, Login: story.AuthorName}
-			// TODO append comments here
 			list = append(list, story)
+		}
+	}
+
+	// Add comments to the story list. They added in a separated
+	// loop for avoid fetching nested query in the same
+	// transaction.
+	for i, s := range list {
+		if list[i].Comments, err = comment.List(ctx, tx, s.ID); err != nil {
+			l.Log("err", err, "desc", "load of comments failed")
+			return []Story{}, errInternal
 		}
 	}
 
@@ -87,9 +96,8 @@ WHERE s.category = $1
 ORDER BY s.created_at DESC
 LIMIT 1000`
 		var rows *sqlx.Rows
-		l.With("sql", q)
 		if rows, err = tx.QueryxContext(ctx, q, category); err != nil && err != sql.ErrNoRows {
-			l.Log("err", err, "desc", "db select failed")
+			l.Log("err", err, "sql", q, "desc", "db select failed")
 			return []Story{}, errInternal
 		}
 		if err == sql.ErrNoRows {
@@ -99,13 +107,22 @@ LIMIT 1000`
 		for rows.Next() {
 			var story Story
 			if err = rows.StructScan(&story); err != nil {
-				l.Log("err", err, "desc", "db select failed")
+				l.Log("err", err, "sql", q, "desc", "rows scan failed")
 				return []Story{}, errInternal
 			}
 
 			story.Author = user.User{ID: story.CreatedBy, Login: story.AuthorName}
-			// TODO append comments here
 			list = append(list, story)
+		}
+	}
+
+	// Add comments to the story list. They added in a separated
+	// loop for avoid fetching nested query in the same
+	// transaction.
+	for i, s := range list {
+		if list[i].Comments, err = comment.List(ctx, tx, s.ID); err != nil {
+			l.Log("err", err, "desc", "load of comments failed")
+			return []Story{}, errInternal
 		}
 	}
 
@@ -152,9 +169,8 @@ WHERE created_by = $1
 ORDER BY created_at DESC
 LIMIT 1000`
 		var rows *sqlx.Rows
-		l.With("sql", q)
 		if rows, err = tx.QueryxContext(ctx, q, u.ID); err != nil && err != sql.ErrNoRows {
-			l.Log("err", err, "desc", "db select failed")
+			l.Log("err", err, "sql", q, "desc", "db select failed")
 			return []Story{}, errInternal
 		}
 		if err == sql.ErrNoRows {
@@ -164,12 +180,21 @@ LIMIT 1000`
 		for rows.Next() {
 			var story Story
 			if err = rows.StructScan(&story); err != nil {
-				l.Log("err", err, "desc", "db select failed")
+				l.Log("err", err, "sql", q, "desc", "rows scan failed")
 				return []Story{}, errInternal
 			}
-
 			story.Author = user.User{ID: u.ID, Login: u.Login}
 			list = append(list, story)
+		}
+	}
+
+	// Add comments to the story list. They added in a separated
+	// loop for avoid fetching nested query in the same
+	// transaction.
+	for i, s := range list {
+		if list[i].Comments, err = comment.List(ctx, tx, s.ID); err != nil {
+			l.Log("err", err, "desc", "load of comments failed")
+			return []Story{}, errInternal
 		}
 	}
 

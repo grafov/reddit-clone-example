@@ -26,7 +26,7 @@ func List(ctx context.Context, tx *sqlx.Tx, storyID uuid.UUID) ([]Comment, error
 SELECT c.id, c.body, c.created_by, c.created_at, a.login
 FROM comment c INNER JOIN account a ON c.created_by = a.id
 WHERE c.story_id = $1
-ORDER BY c.created_at
+ORDER BY c.created_at DESC
 LIMIT 1000`
 		var rows *sqlx.Rows
 		l.With("sql", q)
@@ -41,7 +41,7 @@ LIMIT 1000`
 		for rows.Next() {
 			var com Comment
 			if err = rows.StructScan(&com); err != nil {
-				l.Log("err", err, "desc", "db select failed")
+				l.Log("err", err, "desc", " failed")
 				return []Comment{}, errInternal
 			}
 

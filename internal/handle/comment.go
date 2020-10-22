@@ -15,7 +15,6 @@ func handleCreateComment(c *gin.Context) {
 	// Parse and validate input args.
 	var (
 		com comment.Comment
-		s   story.Story
 		err error
 	)
 	{
@@ -31,13 +30,14 @@ func handleCreateComment(c *gin.Context) {
 		com.StoryID = id
 	}
 
-	// Really it returns whole comment on creation but API wants
-	// display parent story with all related comments.
-	if _, err = comment.Create(context.Background(), getUser(c), com); err != nil {
+	if err = comment.Create(context.Background(), getUser(c), com); err != nil {
 		c.JSON(http.StatusBadRequest, msg(err.Error()))
 		return
 	}
 
+	// Frontend wants to reload the story with all the comments
+	// just after comment creation.
+	var s story.Story
 	if s, err = story.Get(context.Background(), com.StoryID); err != nil {
 		c.JSON(http.StatusBadRequest, msg(err.Error()))
 		return
@@ -47,22 +47,35 @@ func handleCreateComment(c *gin.Context) {
 }
 
 func handleDeleteComment(c *gin.Context) {
+	// Parse and validate input args.
 	var (
 		storyID, commentID uuid.UUID
 		err                error
 	)
-	if storyID, err = uuid.Parse(c.Param("story_id")); err != nil {
-		c.JSON(http.StatusBadRequest, msg("invalid story id"))
-		return
+	{
+		if storyID, err = uuid.Parse(c.Param("story_id")); err != nil {
+			c.JSON(http.StatusBadRequest, msg("invalid story id"))
+			return
+		}
+		if commentID, err = uuid.Parse(c.Param("comment_id")); err != nil {
+			c.JSON(http.StatusBadRequest, msg("invalid comment id"))
+			return
+		}
+
 	}
-	if commentID, err = uuid.Parse(c.Param("comment_id")); err != nil {
-		c.JSON(http.StatusBadRequest, msg("invalid comment id"))
-		return
-	}
+
 	if err = comment.Delete(context.Background(), getUser(c), storyID, commentID); err != nil {
 		c.JSON(http.StatusBadRequest, msg("can't delete"))
 		return
 	}
 
-	c.JSON(http.StatusOK, msg("success"))
+	// Frontend wants to reload the story with all the comments
+	// just after comment deletion.
+	var s story.Story
+	if s, err = story.Get(context.Background(), storyID); err != nil {
+		c.JSON(http.StatusBadRequest, msg(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, s)
 }
