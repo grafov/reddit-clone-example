@@ -16,12 +16,14 @@ func Route() *gin.Engine {
 	var api = r.Group("api")
 	api.POST("register", headers, handleRegister)
 	api.POST("login", headers, handleLogin)
-	api.GET("user/:name", handleUserStories)
+	api.GET("user/:username", handleUserStories)
 	api.GET("posts", handleStoryList)
-	api.GET("posts/:cat", handleCategoryStories)
-	api.GET("post/:id", handleGetStory)
+	api.GET("posts/:catname", handleCategoryStories)
+	api.GET("post/:story_id", handleGetStory)
 	api.POST("posts", auth, handleCreateStory)
-	api.DELETE("post/:id", auth, handleDeleteStory)
+	api.DELETE("post/:story_id", auth, handleDeleteStory)
+	api.POST("post/:story_id", auth, handleCreateComment)
+	api.DELETE("post/:story_id/:comment_id", auth, handleDeleteComment)
 
 	return r
 }

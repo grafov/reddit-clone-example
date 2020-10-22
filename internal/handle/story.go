@@ -28,7 +28,7 @@ func handleUserStories(c *gin.Context) {
 		name string
 		err  error
 	)
-	if name = strings.TrimSpace(c.Param("name")); name == "" {
+	if name = strings.TrimSpace(c.Param("username")); name == "" {
 		c.JSON(http.StatusBadRequest, msg("empty user name"))
 		return
 	}
@@ -49,7 +49,7 @@ func handleCategoryStories(c *gin.Context) {
 		name string
 		err  error
 	)
-	if name = strings.TrimSpace(c.Param("cat")); name == "" {
+	if name = strings.TrimSpace(c.Param("catname")); name == "" {
 		c.JSON(http.StatusBadRequest, msg("empty category name"))
 		return
 	}
@@ -108,7 +108,7 @@ func handleGetStory(c *gin.Context) {
 		id  uuid.UUID
 		err error
 	)
-	if id, err = uuid.Parse(c.Param("id")); err != nil {
+	if id, err = uuid.Parse(c.Param("story_id")); err != nil {
 		c.JSON(http.StatusBadRequest, msg("invalid story id"))
 		return
 	}
@@ -128,7 +128,7 @@ func handleDeleteStory(c *gin.Context) {
 		id  uuid.UUID
 		err error
 	)
-	if id, err = uuid.Parse(c.Param("id")); err != nil {
+	if id, err = uuid.Parse(c.Param("story_id")); err != nil {
 		c.JSON(http.StatusBadRequest, msg("invalid story id"))
 		return
 	}

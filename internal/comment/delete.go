@@ -1,4 +1,4 @@
-package story
+package comment
 
 import (
 	"context"
@@ -10,11 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-// Delete deletes a story from a storage.
-func Delete(ctx context.Context, owner user.User, id uuid.UUID) error {
+// Delete deletes comment from a storage.
+func Delete(ctx context.Context, owner user.User, storyID, commentID uuid.UUID) error {
 	var (
 		tx, err = storage.DB.BeginTxx(ctx, nil)
-		l       = log.Fork().With("fn", "delete", "user", owner.ID, "id", id)
+		l       = log.Fork().With("fn", "delete", "user", owner.ID, "comment-id", commentID, "story-id", storyID)
 	)
 	if err != nil {
 		l.Log("err", err, "desc", "can't begin transaction")
@@ -22,10 +22,10 @@ func Delete(ctx context.Context, owner user.User, id uuid.UUID) error {
 	}
 	defer tx.Rollback()
 
-	const q = `DELETE FROM story WHERE id = $1 AND created_by = $2`
-	if _, err = tx.ExecContext(ctx, q, id, owner.ID); err != nil {
+	const q = `DELETE FROM comment WHERE id = $1 AND story_id = $2 AND created_by = $3`
+	if _, err = tx.ExecContext(ctx, q, commentID, storyID, owner.ID); err != nil {
 		l.Log("err", err, "desc", "delete failed")
-		return errors.New("can't delete story")
+		return errors.New("can't delete comment")
 	}
 
 	if err = tx.Commit(); err != nil {

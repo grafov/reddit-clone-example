@@ -20,6 +20,7 @@ const (
 	linkType = "link"
 )
 
+// Story represents structure for keeping stories.
 type Story struct {
 	ID        uuid.UUID `json:"id,omitempty" db:"id"`
 	Author    user.User `json:"author,omitempty"`
@@ -35,6 +36,7 @@ type Story struct {
 	CreatedAt time.Time `json:"created" db:"created_at"`
 	Comments  []string  `json:"comments"` // TODO
 
+	// Internal fields.
 	CreatedBy  uuid.UUID `json:"-" db:"created_by"`
 	AuthorName string    `json:"-" db:"login"`
 	Body       string    `json:"-" db:"body"` // url or text stored to body
