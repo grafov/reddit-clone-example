@@ -50,6 +50,10 @@ LIMIT 1000`
 			}
 
 			story.Author = user.User{ID: story.CreatedBy, Login: story.AuthorName}
+			if err = story.MatchType(); err != nil {
+				l.Log("err", err, "desc", "database inconsistency")
+				return []Story{}, err
+			}
 			list = append(list, story)
 		}
 	}
@@ -112,6 +116,10 @@ LIMIT 1000`
 			}
 
 			story.Author = user.User{ID: story.CreatedBy, Login: story.AuthorName}
+			if err = story.MatchType(); err != nil {
+				l.Log("err", err, "desc", "database inconsistency")
+				return []Story{}, err
+			}
 			list = append(list, story)
 		}
 	}
@@ -184,6 +192,10 @@ LIMIT 1000`
 				return []Story{}, errInternal
 			}
 			story.Author = user.User{ID: u.ID, Login: u.Login}
+			if err = story.MatchType(); err != nil {
+				l.Log("err", err, "desc", "database inconsistency")
+				return []Story{}, err
+			}
 			list = append(list, story)
 		}
 	}

@@ -34,6 +34,10 @@ func Get(ctx context.Context, id uuid.UUID) (Story, error) {
 		if err == sql.ErrNoRows {
 			return Story{}, errors.New("story not found")
 		}
+		if err = story.MatchType(); err != nil {
+			l.Log("err", err, "desc", "database inconsistency")
+			return Story{}, err
+		}
 	}
 
 	// Fields postprocessing.

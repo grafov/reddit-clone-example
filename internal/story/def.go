@@ -59,3 +59,15 @@ func (s *Story) Upvote(user uuid.UUID) {
 	s.Votes = append(s.Votes, Vote{user, 1})
 	s.Stat = 100 // TODO calculate this
 }
+
+func (s *Story) MatchType() error {
+	switch s.Type {
+	case textType:
+		s.Text = s.Body
+	case linkType:
+		s.URL = s.Body
+	default:
+		return errors.New("invalid story type")
+	}
+	return nil
+}
