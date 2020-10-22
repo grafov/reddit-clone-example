@@ -9,10 +9,13 @@ import (
 
 var (
 	log         = kiwi.Fork().With("pkg", "vote")
-	errInternal = errors.New("internal error, try later")
+	errInternal = errors.New("service error, try later")
 )
 
 type Vote struct {
-	User  uuid.UUID `json:"user"`
-	Count int64     `json:"vote"`
+	UserID uuid.UUID `json:"user" db:"account_id"`
+	Count  int64     `json:"vote" db:"vote"`
+
+	// Internal fields.
+	StoryID uuid.UUID `json:"-" db:"story_id"`
 }

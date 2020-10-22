@@ -12,7 +12,7 @@ import (
 
 var (
 	log         = kiwi.Fork().With("pkg", "comment")
-	errInternal = errors.New("internal error, try later")
+	errInternal = errors.New("service error, try later")
 )
 
 // Comment represents structure for keeping comments for stories.

@@ -14,7 +14,7 @@ import (
 
 var (
 	log         = kiwi.Fork().With("pkg", "story")
-	errInternal = errors.New("internal error, try later")
+	errInternal = errors.New("service error, try later")
 )
 
 const (

@@ -18,7 +18,7 @@ func Get(ctx context.Context, tx *sqlx.Tx, id uuid.UUID) (User, error) {
 	)
 	const q = `SELECT id, login, created_at FROM account WHERE id = $1`
 	if err = tx.QueryRowxContext(ctx, q, id).StructScan(&u); err != nil && err != sql.ErrNoRows {
-		l.Log("err", err, "desc", "db select failed")
+		l.Log("err", err, "sql", q, "desc", "user select failed")
 		return User{}, err
 	}
 	if err == sql.ErrNoRows {
@@ -38,7 +38,7 @@ func GetByName(ctx context.Context, tx *sqlx.Tx, name string) (User, error) {
 	)
 	const q = `SELECT id, login, created_at FROM account WHERE login = $1`
 	if err = tx.QueryRowxContext(ctx, q, name).StructScan(&u); err != nil && err != sql.ErrNoRows {
-		l.Log("err", err, "desc", "db select failed")
+		l.Log("err", err, "sql", q, "desc", "user select failed")
 		return User{}, err
 	}
 	if err == sql.ErrNoRows {

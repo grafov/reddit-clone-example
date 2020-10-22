@@ -8,6 +8,7 @@ import (
 	"reddit-clone-example/internal/comment"
 	"reddit-clone-example/internal/storage"
 	"reddit-clone-example/internal/user"
+	"reddit-clone-example/internal/vote"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -58,12 +59,16 @@ LIMIT 1000`
 		}
 	}
 
-	// Add comments to the story list. They added in a separated
-	// loop for avoid fetching nested query in the same
+	// Add comments and votes to the story list. They added in a
+	// separated loop for avoid fetching nested query in the same
 	// transaction.
 	for i, s := range list {
 		if list[i].Comments, err = comment.List(ctx, tx, s.ID); err != nil {
 			l.Log("err", err, "desc", "load of comments failed")
+			return []Story{}, errInternal
+		}
+		if list[i].Votes, err = vote.List(ctx, s.ID); err != nil {
+			l.Log("err", err, "desc", "load of votes failed")
 			return []Story{}, errInternal
 		}
 	}
@@ -124,12 +129,16 @@ LIMIT 1000`
 		}
 	}
 
-	// Add comments to the story list. They added in a separated
-	// loop for avoid fetching nested query in the same
+	// Add comments and votes to the story list. They added in a
+	// separated loop for avoid fetching nested query in the same
 	// transaction.
 	for i, s := range list {
 		if list[i].Comments, err = comment.List(ctx, tx, s.ID); err != nil {
 			l.Log("err", err, "desc", "load of comments failed")
+			return []Story{}, errInternal
+		}
+		if list[i].Votes, err = vote.List(ctx, s.ID); err != nil {
+			l.Log("err", err, "desc", "load of votes failed")
 			return []Story{}, errInternal
 		}
 	}
@@ -200,12 +209,16 @@ LIMIT 1000`
 		}
 	}
 
-	// Add comments to the story list. They added in a separated
-	// loop for avoid fetching nested query in the same
+	// Add comments and votes to the story list. They added in a
+	// separated loop for avoid fetching nested query in the same
 	// transaction.
 	for i, s := range list {
 		if list[i].Comments, err = comment.List(ctx, tx, s.ID); err != nil {
 			l.Log("err", err, "desc", "load of comments failed")
+			return []Story{}, errInternal
+		}
+		if list[i].Votes, err = vote.List(ctx, s.ID); err != nil {
+			l.Log("err", err, "desc", "load of votes failed")
 			return []Story{}, errInternal
 		}
 	}

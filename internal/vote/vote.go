@@ -2,6 +2,8 @@ package vote
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"reddit-clone-example/internal/storage"
 	"reddit-clone-example/internal/user"
@@ -10,10 +12,24 @@ import (
 )
 
 // Upvote increments user' score for the story.
-func Upvote(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, error) {
+func Upvote(ctx context.Context, voter user.User, storyID uuid.UUID) ([]Vote, error) {
+	return voteUpdate(ctx, voter, storyID, +1)
+}
+
+// Neutral resets user' score for the story.
+func Neutral(ctx context.Context, voter user.User, storyID uuid.UUID) ([]Vote, error) {
+	return voteUpdate(ctx, voter, storyID, 0)
+}
+
+// Downvote decrements user' score for the story.
+func Downvote(ctx context.Context, voter user.User, storyID uuid.UUID) ([]Vote, error) {
+	return voteUpdate(ctx, voter, storyID, -1)
+}
+
+func voteUpdate(ctx context.Context, voter user.User, storyID uuid.UUID, direction int64) ([]Vote, error) {
 	var (
 		tx, err = storage.DB.BeginTxx(ctx, nil)
-		l       = log.Fork().With("fn", "upvote", "voter", author.ID, "story", storyID)
+		l       = log.Fork().With("fn", "vote-update", "voter", voter.ID, "story", storyID)
 	)
 	if err != nil {
 		l.Log("err", err, "desc", "can't begin transaction")
@@ -23,16 +39,59 @@ func Upvote(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, e
 
 	// Check that article exists.
 	{
-		// XXX
+		var score int64
+		const q = `SELECT score FROM story WHERE id = $1`
+		if err = tx.QueryRowxContext(ctx, q, storyID).Scan(&score); err != nil && err != sql.ErrNoRows {
+			l.Log("err", err, "sql", q, "desc", "select story failed")
+			return []Vote{}, err
+		}
+		if err == sql.ErrNoRows {
+			return []Vote{}, errors.New("story not found")
+		}
 	}
 
 	// Increment vote for the user.
 	{
-		const q = `UPDATE story SET views = views + 1 WHERE id = $1`
-		if _, err = tx.ExecContext(ctx, q, storyID); err != nil {
-			l.Log("err", err, "sql", q, "desc", "views update failed")
+		var v int64
+		// TODO(grafov) Better use upsert here but I have deadline soon. Replace it later.
+		const q = `SELECT vote FROM vote WHERE story_id = $1 AND account_id = $2`
+		if err = tx.QueryRowxContext(ctx, q, storyID, voter.ID).Scan(&v); err != nil && err != sql.ErrNoRows {
+			l.Log("err", err, "sql", q, "desc", "vote load failed")
 			return []Vote{}, errInternal
 		}
+		// Setup first vote for the user. Reset not need here.
+		if err == sql.ErrNoRows && direction != 0 {
+			const q = `INSERT INTO vote (story_id, account_id, vote) VALUES ($1, $2, $3)`
+			if _, err = tx.ExecContext(ctx, q, storyID, voter.ID, direction); err != nil {
+				l.Log("err", err, "sql", q, "desc", "vote insert failed")
+				return []Vote{}, errInternal
+			}
+		}
+		// This case handles existing scores: reset or increment/decrement.
+		if err != sql.ErrNoRows {
+			if direction != 0 {
+				// Increment or decrement first vote for the user.
+				const q = `UPDATE vote SET vote = vote + $3 WHERE story_id = $1 AND account_id = $2`
+				if _, err = tx.ExecContext(ctx, q, storyID, voter.ID, direction); err != nil {
+					l.Log("err", err, "sql", q, "desc", "vote update failed")
+					return []Vote{}, errInternal
+				}
+			} else {
+				// Reset the score for the user (direction = 0).
+				const q = `DELETE FROM vote WHERE story_id = $1 AND account_id = $2`
+				if _, err = tx.ExecContext(ctx, q, storyID, voter.ID); err != nil {
+					l.Log("err", err, "sql", q, "desc", "vote update failed")
+					return []Vote{}, errInternal
+				}
+			}
+		}
+	}
+
+	// Load all article votes for the result.
+	var votes []Vote
+	if votes, err = list(ctx, tx, storyID); err != nil {
+		log.Log("err", err, "desc", "can't load votes")
+		return []Vote{}, errInternal
 	}
 
 	if err = tx.Commit(); err != nil {
@@ -40,16 +99,5 @@ func Upvote(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, e
 		return []Vote{}, errInternal
 	}
 
-	return []Vote{}, nil
-
-}
-
-// Neutral resets user' score for the story.
-func Neutral(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, error) {
-	return []Vote{}, nil
-}
-
-// Downvote decrements user' score for the story.
-func Downvote(ctx context.Context, author user.User, storyID uuid.UUID) ([]Vote, error ){
-	return []Vote{}, nil
+	return votes, nil
 }
