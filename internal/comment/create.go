@@ -2,6 +2,8 @@ package comment
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"time"
 
 	"reddit-clone-example/internal/user"
@@ -10,16 +12,30 @@ import (
 	"github.com/google/uuid"
 )
 
-func Create(ctx context.Context, author user.User, storyID uuid.UUID, comment Comment) (Comment, error) {
+// Create creates a comment for a story. Author should be logged in.
+func Create(ctx context.Context, author user.User, comment Comment) (Comment, error) {
 	var (
 		tx, err = storage.DB.BeginTxx(ctx, nil)
-		l       = log.Fork().With("fn", "create")
+		l       = log.Fork().With("fn", "create", "author", author.ID, "story", comment.StoryID)
 	)
 	if err != nil {
 		l.Log("err", err, "desc", "can't begin transaction")
 		return Comment{}, errInternal
 	}
 	defer tx.Rollback()
+
+	// Check the story really exists.
+	{
+		var id uuid.UUID
+		const q = `SELECT id FROM story WHERE id = $1`
+		if err = tx.QueryRowxContext(ctx, q, comment.StoryID).Scan(&id); err != nil && err != sql.ErrNoRows {
+			l.Log("err", err, "sql", q, "desc", "db select failed")
+			return Comment{}, errInternal
+		}
+		if err == sql.ErrNoRows {
+			return Comment{}, errors.New("story not found")
+		}
+	}
 
 	// Prepare comment for keeping.
 	{
@@ -32,7 +48,7 @@ func Create(ctx context.Context, author user.User, storyID uuid.UUID, comment Co
 	{
 		const q = `INSERT INTO comment (id, story_id, body, created_by, created_at) VALUES ($1, $2, $3, $4, $5)`
 		if _, err = tx.ExecContext(ctx, q, comment.ID, comment.StoryID, comment.Body, comment.Author.ID, comment.CreatedAt); err != nil {
-			l.Log("err", err, "desc", "new comment creation failed")
+			l.Log("err", err, "sql", q, "desc", "new comment creation failed")
 			return Comment{}, errInternal
 		}
 	}

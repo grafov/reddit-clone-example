@@ -33,6 +33,7 @@ FROM story s INNER JOIN account a ON s.created_by = a.id
 ORDER BY s.created_at DESC
 LIMIT 1000`
 		var rows *sqlx.Rows
+		l.With("sql", q)
 		if rows, err = tx.QueryxContext(ctx, q); err != nil && err != sql.ErrNoRows {
 			l.Log("err", err, "desc", "db select failed")
 			return []Story{}, errInternal
@@ -68,7 +69,7 @@ LIMIT 1000`
 func ListByCategory(ctx context.Context, category string) ([]Story, error) {
 	var (
 		tx, err = storage.DB.BeginTxx(ctx, nil)
-		l       = log.Fork().With("fn", "list")
+		l       = log.Fork().With("fn", "list-by-category")
 	)
 	if err != nil {
 		l.Log("err", err, "desc", "can't begin transaction")
@@ -86,6 +87,7 @@ WHERE s.category = $1
 ORDER BY s.created_at DESC
 LIMIT 1000`
 		var rows *sqlx.Rows
+		l.With("sql", q)
 		if rows, err = tx.QueryxContext(ctx, q, category); err != nil && err != sql.ErrNoRows {
 			l.Log("err", err, "desc", "db select failed")
 			return []Story{}, errInternal
@@ -121,7 +123,7 @@ LIMIT 1000`
 func ListByUser(ctx context.Context, name string) ([]Story, error) {
 	var (
 		tx, err = storage.DB.BeginTxx(ctx, nil)
-		l       = log.Fork().With("fn", "list")
+		l       = log.Fork().With("fn", "list-by-user")
 	)
 	if err != nil {
 		l.Log("err", err, "desc", "can't begin transaction")
@@ -150,6 +152,7 @@ WHERE created_by = $1
 ORDER BY created_at DESC
 LIMIT 1000`
 		var rows *sqlx.Rows
+		l.With("sql", q)
 		if rows, err = tx.QueryxContext(ctx, q, u.ID); err != nil && err != sql.ErrNoRows {
 			l.Log("err", err, "desc", "db select failed")
 			return []Story{}, errInternal

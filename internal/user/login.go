@@ -29,7 +29,7 @@ func Login(ctx context.Context, name, pass string) (token, message string) {
 		const q = `SELECT id, pass FROM account WHERE login = $1`
 		var h []byte
 		if err = tx.QueryRowxContext(ctx, q, name).Scan(&id, &h); err != nil && err != sql.ErrNoRows {
-			l.Log("err", err, "desc", "db select failed")
+			l.Log("err", err, "sql", q, "desc", "db select failed")
 			return "", "internal error"
 		}
 		if err == sql.ErrNoRows {

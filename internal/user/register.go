@@ -29,7 +29,7 @@ func Register(ctx context.Context, name, pass string) (token, message string) {
 		const q = `SELECT id, login FROM account WHERE login = $1`
 		var id uuid.UUID
 		if err = tx.QueryRowxContext(ctx, q, name).Scan(&id); err != nil && err != sql.ErrNoRows {
-			l.Log("err", err, "desc", "db select failed")
+			l.Log("err", err, "sql", q, "desc", "db select failed")
 			return "", "internal error"
 		}
 		if id != uuid.Nil {
@@ -45,11 +45,11 @@ func Register(ctx context.Context, name, pass string) (token, message string) {
 		// https://security.stackexchange.com/questions/17207/recommended-of-rounds-for-bcrypt/83382#83382
 		var h []byte
 		if h, err = bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost); err != nil {
-			l.Log("err", err, "desc", "password hash generation failed")
+			l.Log("err", err, "sql", q, "desc", "password hash generation failed")
 			return "", "internal error"
 		}
 		if _, err = tx.ExecContext(ctx, q, id, name, h); err != nil {
-			l.Log("err", err, "desc", "new user creation failed")
+			l.Log("err", err, "sql", q, "desc", "new user creation failed")
 			return "", "internal error"
 		}
 	}

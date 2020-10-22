@@ -24,5 +24,6 @@ type Comment struct {
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 
 	// internal fields
-	CreatedBy uuid.UUID `json:"-" db:"created_by"`
+	AuthorName string    `json:"-" db:"login"`
+	CreatedBy  uuid.UUID `json:"-" db:"created_by"`
 }

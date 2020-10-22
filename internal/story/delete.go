@@ -24,7 +24,7 @@ func Delete(ctx context.Context, owner user.User, id uuid.UUID) error {
 
 	const q = `DELETE FROM story WHERE id = $1 AND created_by = $2`
 	if _, err = tx.ExecContext(ctx, q, id, owner.ID); err != nil {
-		l.Log("err", err, "desc", "delete failed")
+		l.Log("err", err, "sql", q, "desc", "delete failed")
 		return errors.New("can't delete story")
 	}
 
