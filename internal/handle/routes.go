@@ -16,7 +16,7 @@ func Route() *gin.Engine {
 	var api = r.Group("api")
 	api.POST("register", headers, handleRegister)
 	api.POST("login", headers, handleLogin)
-	api.GET("user/:name", handleProfile)
+	api.GET("user/:name", handleUserStories)
 	api.GET("posts", handleStoryList)
 	api.GET("post/:id", handleGetStory)
 	api.POST("posts", auth, handleCreateStory)

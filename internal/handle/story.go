@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"reddit-clone-example/internal/story"
 
@@ -19,6 +20,27 @@ func handleStoryList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, list)
+}
+
+func handleUserStories(c *gin.Context) {
+	// Parse and validate args.
+	var (
+		name string
+		err  error
+	)
+	if name = strings.TrimSpace(c.Param("name")); name == "" {
+		c.JSON(http.StatusBadRequest, msg("empty user name"))
+		return
+	}
+
+	// Retrieve the story.
+	var s []story.Story
+	if s, err = story.ListByUser(context.Background(), name); err != nil {
+		c.JSON(http.StatusBadRequest, msg(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, s)
 }
 
 func handleCreateStory(c *gin.Context) {

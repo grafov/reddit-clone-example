@@ -27,3 +27,23 @@ func Get(ctx context.Context, tx *sqlx.Tx, id uuid.UUID) (User, error) {
 
 	return u, nil
 }
+
+// GetByName gets user info from a storage by ID. For internal usage only,
+// not for HTTP API.
+func GetByName(ctx context.Context, tx *sqlx.Tx, name string) (User, error) {
+	var (
+		u   User
+		l   = log.Fork().With("fn", "get", "login", name)
+		err error
+	)
+	const q = `SELECT id, login, created_at FROM account WHERE login = $1`
+	if err = tx.QueryRowxContext(ctx, q, name).StructScan(&u); err != nil && err != sql.ErrNoRows {
+		l.Log("err", err, "desc", "db select failed")
+		return User{}, err
+	}
+	if err == sql.ErrNoRows {
+		return User{}, err
+	}
+
+	return u, nil
+}
