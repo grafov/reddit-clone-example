@@ -5,6 +5,8 @@ import (
 	"errors"
 
 	"reddit-clone-example/internal/user"
+	"reddit-clone-example/internal/comment"
+	"reddit-clone-example/internal/vote"
 	"reddit-clone-example/internal/storage"
 
 	"github.com/google/uuid"
@@ -26,6 +28,14 @@ func Delete(ctx context.Context, owner user.User, id uuid.UUID) error {
 	if _, err = tx.ExecContext(ctx, q, id, owner.ID); err != nil {
 		l.Log("err", err, "sql", q, "desc", "delete failed")
 		return errors.New("can't delete story")
+	}
+
+	if err=comment.DeleteAll(ctx, id);err!= nil{
+		log.Log("err", err, "desc", "can't delete story' comments")
+	}
+
+	if err=	vote.DeleteAll(ctx, id);err!=nil{
+		log.Log("err", err, "desc", "can't delete story' votes")
 	}
 
 	if err = tx.Commit(); err != nil {

@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Delete deletes comment from a storage.
+// Delete deletes a comment from a storage.
 func Delete(ctx context.Context, owner user.User, storyID, commentID uuid.UUID) error {
 	var (
 		tx, err = storage.DB.BeginTxx(ctx, nil)
@@ -33,5 +33,10 @@ func Delete(ctx context.Context, owner user.User, storyID, commentID uuid.UUID) 
 		return errInternal
 	}
 
+	return nil
+}
+
+// DeleteAll deletes all comments for the story. Not exposed to HTTP API.
+func DeleteAll(ctx context.Context, storyID uuid.UUID) error {
 	return nil
 }
