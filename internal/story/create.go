@@ -8,6 +8,7 @@ import (
 	"reddit-clone-example/internal/comment"
 	"reddit-clone-example/internal/storage"
 	"reddit-clone-example/internal/user"
+	"reddit-clone-example/internal/vote"
 
 	"github.com/google/uuid"
 )
@@ -37,7 +38,11 @@ func Create(ctx context.Context, author user.User, story Story) (Story, error) {
 		story.Author = author
 		story.CreatedAt = time.Now()
 		story.Comments = []comment.Comment{}
-		story.Upvote(author.ID)
+		// Author votes for its article by design.
+		if story.Votes, err = vote.Upvote(ctx, author, story.ID); err != nil {
+			l.Log("err", err, "desc", "can't load story votes")
+			return Story{}, errInternal
+		}
 	}
 
 	// Save into a storage.

@@ -6,6 +6,7 @@ import (
 
 	"reddit-clone-example/internal/comment"
 	"reddit-clone-example/internal/user"
+	"reddit-clone-example/internal/vote"
 
 	"github.com/google/uuid"
 	"github.com/grafov/kiwi"
@@ -33,31 +34,14 @@ type Story struct {
 	Stat      int64             `json:"upvotePercentage,omitempty"`
 	Score     int64             `json:"score"`
 	Views     int64             `json:"views"`
-	Votes     []Vote            `json:"votes"`
+	Votes     []vote.Vote       `json:"votes"`
 	CreatedAt time.Time         `json:"created" db:"created_at"`
-	Comments  []comment.Comment `json:"comments"` // TODO
+	Comments  []comment.Comment `json:"comments"`
 
 	// Internal fields.
 	CreatedBy  uuid.UUID `json:"-" db:"created_by"`
 	AuthorName string    `json:"-" db:"login"`
 	Body       string    `json:"-" db:"body"` // url or text stored to body
-}
-
-type Vote struct {
-	User  uuid.UUID `json:"user"`
-	Count int64     `json:"vote"`
-}
-
-func (s *Story) Upvote(user uuid.UUID) {
-	for i, v := range s.Votes {
-		if v.User == user {
-			s.Votes[i].Count++
-			s.Stat = 100 // TODO calculate this
-			return
-		}
-	}
-	s.Votes = append(s.Votes, Vote{user, 1})
-	s.Stat = 100 // TODO calculate this
 }
 
 func (s *Story) MatchType() error {

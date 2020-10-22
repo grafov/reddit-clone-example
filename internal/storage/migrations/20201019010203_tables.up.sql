@@ -40,3 +40,11 @@ CREATE TABLE comment
 CREATE INDEX comment_story_index ON comment(story_id);
 CREATE INDEX comment_author_index ON comment(created_by);
 CREATE INDEX comment_created_index ON comment(created_at);
+
+CREATE TABLE vote
+(
+       story_id uuid NOT NULL,
+       account_id uuid NOT NULL,
+       vote int,
+       CONSTRAINT vote_pk PRIMARY KEY (story_id, account_id)
+);
