@@ -50,7 +50,7 @@ func auth(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, msg(err.Error()))
 			return
 		}
-		c.Set(session, u)
+		c.Set(session, *u)
 	}
 
 	c.Next()

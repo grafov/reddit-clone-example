@@ -75,7 +75,7 @@ func createToken(id uuid.UUID, name string) (string, error) {
 			IssuedAt:  n,
 			ExpiresAt: n + int64(config.App.TokenDuration*60),
 		},
-		User{id, name},
+		User{id, name, time.Now()},
 	}
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, a.claims())
 	return t.SignedString([]byte(config.App.TokenSecret))
