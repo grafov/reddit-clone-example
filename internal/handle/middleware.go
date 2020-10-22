@@ -12,8 +12,8 @@ import (
 
 const session = "session" // key for user info in gin context
 
-// headers middleware checks for valid content type for API requests
-func headers(c *gin.Context) {
+// headersCheck middleware checks for valid content type for API requests
+func headersCheck(c *gin.Context) {
 	if c.GetHeader("Content-Type") != "application/json" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, msg("request payload not recognized"))
 		return
@@ -21,8 +21,8 @@ func headers(c *gin.Context) {
 	c.Next()
 }
 
-// auth middleware checks for authorization header
-func auth(c *gin.Context) {
+// authCheck middleware checks for authorization header
+func authCheck(c *gin.Context) {
 	// Parse the token from the header. Take into account that the token prepended by Bearer
 	// keyword.
 	var (

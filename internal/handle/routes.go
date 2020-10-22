@@ -15,17 +15,17 @@ func Route() *gin.Engine {
 	r.GET("/a/:cat/:story_id", handleRoot)
 
 	var api = r.Group("api")
-	api.POST("register", headers, handleRegister)
-	api.POST("login", headers, handleLogin)
+	api.POST("register", headersCheck, handleRegister)
+	api.POST("login", headersCheck, handleLogin)
 	api.GET("user/:username", handleUserStories)
 	api.GET("posts", handleStoryList)
 	api.GET("posts/:catname", handleCategoryStories)
 	api.GET("post/:story_id", handleGetStory)
-	api.POST("posts", auth, handleCreateStory)
-	api.DELETE("post/:story_id", auth, handleDeleteStory)
-	api.POST("post/:story_id", auth, handleCreateComment)
-	api.DELETE("post/:story_id/:comment_id", auth, handleDeleteComment)
-
+	api.POST("posts", authCheck, handleCreateStory)
+	api.DELETE("post/:story_id", authCheck, handleDeleteStory)
+	api.POST("post/:story_id", authCheck, handleCreateComment)
+	api.DELETE("post/:story_id/:comment_id", authCheck, handleDeleteComment)
+	api.GET("post/:story_id/upvote", authCheck, )
 	return r
 }
 
