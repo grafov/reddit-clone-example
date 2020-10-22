@@ -43,6 +43,27 @@ func handleUserStories(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
+func handleCategoryStories(c *gin.Context) {
+	// Parse and validate args.
+	var (
+		name string
+		err  error
+	)
+	if name = strings.TrimSpace(c.Param("cat")); name == "" {
+		c.JSON(http.StatusBadRequest, msg("empty category name"))
+		return
+	}
+
+	// Retrieve the story.
+	var s []story.Story
+	if s, err = story.ListByCategory(context.Background(), name); err != nil {
+		c.JSON(http.StatusBadRequest, msg(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, s)
+}
+
 func handleCreateStory(c *gin.Context) {
 	// Parse and validate input args.
 	var (
