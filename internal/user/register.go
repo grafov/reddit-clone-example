@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"reddit-clone-example/internal/config"
-	"reddit-clone-example/storage"
+	"reddit-clone-example/internal/storage"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"

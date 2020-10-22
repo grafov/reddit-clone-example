@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"reddit-clone-example/storage"
+	"reddit-clone-example/internal/storage"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"

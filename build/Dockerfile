@@ -22,7 +22,7 @@ VOLUME /tmp
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/src/reddit-clone-example/web/* /web/
-COPY --from=builder /go/src/reddit-clone-example/storage/migrations/* /storage/migrations/
+COPY --from=builder /go/src/reddit-clone-example/internal/storage/migrations/* /storage/migrations/
 COPY --from=builder /go/src/reddit-clone-example/rcapp /rcapp
 
 ENTRYPOINT ["/rcapp"]

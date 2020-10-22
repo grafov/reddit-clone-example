@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"reddit-clone-example/internal/user"
-	"reddit-clone-example/storage"
+	"reddit-clone-example/internal/storage"
 
 	"github.com/google/uuid"
 )

@@ -6,8 +6,8 @@ import (
 	"errors"
 
 	"reddit-clone-example/internal/comment"
+	"reddit-clone-example/internal/storage"
 	"reddit-clone-example/internal/user"
-	"reddit-clone-example/storage"
 
 	"github.com/jmoiron/sqlx"
 )

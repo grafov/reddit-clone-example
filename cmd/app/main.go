@@ -10,7 +10,7 @@ import (
 
 	"reddit-clone-example/internal/config"
 	"reddit-clone-example/internal/handle"
-	"reddit-clone-example/storage"
+	"reddit-clone-example/internal/storage"
 
 	"github.com/grafov/kiwi"
 	"github.com/grafov/kiwi/where"
