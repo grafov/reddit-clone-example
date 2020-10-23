@@ -26,9 +26,9 @@ This simple web application offers:
 
 ## Installation
 
-Default installation folder for docker-compose configs and databas is
-`/var/lib/local/reddit-clone-example`. Edit installation script in you
-want another location.
+Default installation folder for docker-compose configs and database
+volume is `/var/lib/local/reddit-clone-example`. Edit installation
+script if you want another location.
 
 1. Clone repo and run `make docker` inside root directory.
 2. Run `deployments/install.sh` for the first start. It has dirty
@@ -42,6 +42,16 @@ Stop and run it then with `docker-compose down` and `docker-compose up
 ![](doc/example-screen.png)
 
 ## Notes about realization
+
+Notable libraries that I used for this fast development:
+
+* Webframework https://github.com/gin-gonic/gin
+* Wrapper on database/sql https://github.com/jmoiron/sqlx
+* Configuration in environment variables https://github.com/kelseyhightower/envconfig
+* Working with UUID v4 https://github.com/google/uuid
+* JWT parser https://github.com/dgrijalva/jwt-go
+* For logging I used my logfmt implementation https://github.com/grafov/kiwi
+* The code layout mostly based on https://github.com/golang-standards/project-layout
 
 ## License
 
