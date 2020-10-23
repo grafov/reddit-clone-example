@@ -50,11 +50,11 @@ func voteUpdate(ctx context.Context, voter user.User, storyID uuid.UUID, directi
 		}
 	}
 
-	// Save vote for the user.
+	// Set vote for the user.
+	var oldVote int64
 	{
-		var v int64
 		const q = `SELECT vote FROM vote WHERE story_id = $1 AND account_id = $2`
-		if err = tx.QueryRowxContext(ctx, q, storyID, voter.ID).Scan(&v); err != nil && err != sql.ErrNoRows {
+		if err = tx.QueryRowxContext(ctx, q, storyID, voter.ID).Scan(&oldVote); err != nil && err != sql.ErrNoRows {
 			l.Log("err", err, "sql", q, "desc", "vote load failed")
 			return []Vote{}, errInternal
 		}
@@ -65,20 +65,31 @@ func voteUpdate(ctx context.Context, voter user.User, storyID uuid.UUID, directi
 				l.Log("err", err, "sql", q, "desc", "vote insert failed")
 				return []Vote{}, errInternal
 			}
-			// Update story' score counter.
-			const q2 = `UPDATE story SET score = score + $2 WHERE id = $1`
-			if _, err = tx.ExecContext(ctx, q2, storyID, direction); err != nil {
-				l.Log("err", err, "sql", q2, "desc", "vote load failed")
-				return []Vote{}, errInternal
-			}
 		}
 		// This case handles score reset. Increment/decrement skiped here.
-		if err != sql.ErrNoRows && direction == 0 {
+		if err == nil && direction == 0 {
 			const q = `DELETE FROM vote WHERE story_id = $1 AND account_id = $2`
 			if _, err = tx.ExecContext(ctx, q, storyID, voter.ID); err != nil {
 				l.Log("err", err, "sql", q, "desc", "vote update failed")
 				return []Vote{}, errInternal
 			}
+		}
+		if err == nil && direction != 0 {
+			const q = `UPDATE vote SET vote = $3 WHERE story_id = $1 AND account_id = $2`
+			if _, err = tx.ExecContext(ctx, q, storyID, voter.ID, direction); err != nil {
+				l.Log("err", err, "sql", q, "desc", "vote update failed")
+				return []Vote{}, errInternal
+			}
+		}
+	}
+
+	// Update story' score counter. Update score only when vote
+	// direction has changed.
+	if oldVote != direction {
+		const q = `UPDATE story SET score = score + $2 WHEREi = $1`
+		if _, err = tx.ExecContext(ctx, q, storyID, -oldVote + direction); err != nil {
+			l.Log("err", err, "sql", q, "desc", "vote load failed")
+			return []Vote{}, errInternal
 		}
 	}
 
