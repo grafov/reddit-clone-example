@@ -9,6 +9,13 @@ example of Go code for HTTP handling and working with database.
 The code was developed as a test task for the job interview for one
 company. I don't decide I will work there but anyway task was fun :)
 
+This simple web application offers:
+
+* creation of articles
+* comments
+* signup/signin for users
+* voting for articles
+
 ## Requirements
 
 * go compiler
@@ -33,6 +40,8 @@ Stop and run it then with `docker-compose down` and `docker-compose up
 -d` inside the installation directory.
 
 ![](doc/example-screen.png)
+
+## Notes about realization
 
 ## License
 
