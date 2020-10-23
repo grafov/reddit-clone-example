@@ -6,9 +6,9 @@ import (
 	"errors"
 
 	"reddit-clone-example/internal/comment"
+	"reddit-clone-example/internal/storage"
 	"reddit-clone-example/internal/user"
 	"reddit-clone-example/internal/vote"
-	"reddit-clone-example/internal/storage"
 
 	"github.com/google/uuid"
 )
@@ -59,7 +59,7 @@ func Get(ctx context.Context, id uuid.UUID) (Story, error) {
 			l.Log("err", err, "desc", "load of comments failed")
 			return Story{}, errInternal
 		}
-		if story.Votes, err = vote.List(ctx, story.ID); err != nil {
+		if story.Votes, story.UpvoteStat, err = vote.List(ctx, story.ID); err != nil {
 			l.Log("err", err, "desc", "load of votes failed")
 			return Story{}, errInternal
 		}

@@ -14,7 +14,7 @@ var (
 
 type Vote struct {
 	UserID uuid.UUID `json:"user" db:"account_id"`
-	Count  int64     `json:"vote" db:"vote"`
+	Value  int64     `json:"vote" db:"vote"`
 
 	// Internal fields.
 	StoryID uuid.UUID `json:"-" db:"story_id"`

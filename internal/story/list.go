@@ -67,7 +67,7 @@ LIMIT 1000`
 			l.Log("err", err, "desc", "load of comments failed")
 			return []Story{}, errInternal
 		}
-		if list[i].Votes, err = vote.List(ctx, s.ID); err != nil {
+		if list[i].Votes, list[i].UpvoteStat,err = vote.List(ctx, s.ID); err != nil {
 			l.Log("err", err, "desc", "load of votes failed")
 			return []Story{}, errInternal
 		}
@@ -137,7 +137,7 @@ LIMIT 1000`
 			l.Log("err", err, "desc", "load of comments failed")
 			return []Story{}, errInternal
 		}
-		if list[i].Votes, err = vote.List(ctx, s.ID); err != nil {
+		if list[i].Votes, list[i].UpvoteStat, err = vote.List(ctx, s.ID); err != nil {
 			l.Log("err", err, "desc", "load of votes failed")
 			return []Story{}, errInternal
 		}
@@ -217,7 +217,7 @@ LIMIT 1000`
 			l.Log("err", err, "desc", "load of comments failed")
 			return []Story{}, errInternal
 		}
-		if list[i].Votes, err = vote.List(ctx, s.ID); err != nil {
+		if list[i].Votes, list[i].UpvoteStat, err = vote.List(ctx, s.ID); err != nil {
 			l.Log("err", err, "desc", "load of votes failed")
 			return []Story{}, errInternal
 		}

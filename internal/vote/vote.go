@@ -86,8 +86,8 @@ func voteUpdate(ctx context.Context, voter user.User, storyID uuid.UUID, directi
 	// Update story' score counter. Update score only when vote
 	// direction has changed.
 	if oldVote != direction {
-		const q = `UPDATE story SET score = score + $2 WHEREi = $1`
-		if _, err = tx.ExecContext(ctx, q, storyID, -oldVote + direction); err != nil {
+		const q = `UPDATE story SET score = score + $2 WHERE id = $1`
+		if _, err = tx.ExecContext(ctx, q, storyID, -oldVote+direction); err != nil {
 			l.Log("err", err, "sql", q, "desc", "vote load failed")
 			return []Vote{}, errInternal
 		}
@@ -95,7 +95,7 @@ func voteUpdate(ctx context.Context, voter user.User, storyID uuid.UUID, directi
 
 	// Load all article votes for the result.
 	var votes []Vote
-	if votes, err = list(ctx, tx, storyID); err != nil {
+	if votes, _, err = list(ctx, tx, storyID); err != nil {
 		log.Log("err", err, "desc", "can't load votes")
 		return []Vote{}, errInternal
 	}
