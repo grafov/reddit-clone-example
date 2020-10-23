@@ -38,11 +38,6 @@ func Create(ctx context.Context, author user.User, story Story) (Story, error) {
 		story.Author = author
 		story.CreatedAt = time.Now()
 		story.Comments = []comment.Comment{}
-		// Author votes for its article by design.
-		if story.Votes, err = vote.Upvote(ctx, author, story.ID); err != nil {
-			l.Log("err", err, "desc", "can't load story votes")
-			return Story{}, errInternal
-		}
 	}
 
 	// Save into a storage.
@@ -54,5 +49,16 @@ func Create(ctx context.Context, author user.User, story Story) (Story, error) {
 		}
 	}
 
-	return story, tx.Commit()
+	if err = tx.Commit(); err != nil {
+		l.Log("err", err, "desc", "can't commit")
+		return Story{}, errInternal
+	}
+
+	// Author votes for its article by design.
+	if story.Votes, err = vote.Upvote(ctx, author, story.ID); err != nil {
+		l.Log("err", err, "desc", "can't load story votes")
+		return Story{}, errInternal
+	}
+
+	return story, nil
 }
